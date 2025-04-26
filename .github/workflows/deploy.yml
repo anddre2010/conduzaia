@@ -1,0 +1,31 @@
+name: Deploy automático para o servidor
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Conectar via SSH e fazer deploy
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: 46.202.149.161
+          username: root
+          password: sshnova123@ACB
+          port: 22
+          script: |
+            cd /home/metronic/8/v8.2.9/laravel/starterkit
+            git config pull.rebase false
+            git pull origin main
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
